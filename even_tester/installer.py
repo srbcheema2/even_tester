@@ -34,7 +34,6 @@ def is_installed(soft):
     os_name = get_os_name()
     dump_out =' > /dev/null 2>&1'
     if os_name == 'windows': dump_out =' > NUL'
-    dump_out = ' > /dev/null 2>&1'
     help_opt = ' --help '
     a = os.system(soft + help_opt + dump_out)
     if a == 0 or a == 256:
@@ -47,7 +46,7 @@ def is_installed(soft):
     return False
 
 
-def install_dependencies_win(dependency_map, verbose = False):
+def install_dependencies(dependency_map, verbose = False):
     supported_distros = _get_supported_distros(dependency_map)
     distro = _recognise_distro(supported_distros)
     if(verbose):
@@ -80,13 +79,19 @@ def install_tester():
 
     pwd = str(os.getcwd())#always return without / at end;
     pwd = abs_path(pwd)
-    binary_path = pwd + '/even_tester/binaries/even_validator'+os_name
+    binary_path = pwd + '/even_tester/binaries/'+os_name+'/even_validator'
+    if(os_name == 'windows'): binary_path += '.exe'
 
-    if(os_name == windows):
-        install_path = abs_path('C:/Program Files/even_tester')
-        user_path = os.environ['path']
-        if not 'C:\\Program Files\\even_tester' in user_path:
-            os.system('setx path "%path%;C:\\Program Files\\even_tester"')
+    if(os_name == 'windows'):
+        install_path = abs_path('~/programs','\\')
+        binary_path = abs_path(binary_path,'\\')
+
+        user_path = os.environ['path'] + ';'
+        if not install_path+';' in user_path:
+            print('adding to userpath')
+            print(install_path)
+            print(user_path)
+            os.system('setx path "%path%;'+install_path+'"')
     else:
         install_path = abs_path('~/.local/bin')
     verify_folder(install_path)
@@ -94,7 +99,7 @@ def install_tester():
     dependency_map = {
         'even_validator':{
             'ubuntu':'cp '+binary_path+' '+install_path,
-            'windows':'copy '+binary_path+' '+install_path,
+            'windows':'copy "'+binary_path+'" "'+install_path+'"',
         },
     }
     install_dependencies(dependency_map,verbose=True)
