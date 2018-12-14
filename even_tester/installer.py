@@ -4,6 +4,7 @@ import subprocess
 from srblib import Colour
 from srblib import abs_path
 from srblib import verify_folder
+from srblib import get_os_name
 
 def _get_supported_distros(dependency_map):
     supported_distros = set()
@@ -39,7 +40,6 @@ def is_installed(soft):
 
 
 def install_dependencies(dependency_map, verbose = False):
-
     supported_distros = _get_supported_distros(dependency_map)
     distro = _recognise_distro(supported_distros)
     if(verbose):
@@ -68,11 +68,19 @@ def install_dependencies(dependency_map, verbose = False):
     return all_installed
 
 def install_tester():
+    os_name = get_os_name()
+
     pwd = str(os.getcwd())#always return without / at end;
     pwd = abs_path(pwd)
-    binary_path = pwd + '/even_tester/binaries/even_validator'
+    binary_path = pwd + '/even_tester/binaries/even_validator'+os_name
 
-    install_path = abs_path('~/.local/bin')
+    if(os_name == windows):
+        install_path = abs_path('C:/Program Files/even_tester')
+        user_path = os.environ['path']
+        if not 'C:\\Program Files\\even_tester' in user_path:
+            os.system('setx path "%path%;C:\\Program Files\\even_tester"')
+    else:
+        install_path = abs_path('~/.local/bin')
     verify_folder(install_path)
 
     dependency_map = {

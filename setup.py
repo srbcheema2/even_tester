@@ -8,7 +8,8 @@ from even_tester import __version__, __mod_name__
 try:
     with open("README.md", 'r') as f:
         long_description = f.read()
-    requirements = []
+    with open('requirements.txt', 'r') as f:
+        requirements = [line.strip() for line in f.readlines()]
 except:
     long_description='A python-cpp even_tester by srb',
     requirements = []
@@ -34,7 +35,7 @@ setup(
     install_requires=requirements, #external packages as dependencies
 
     entry_points={
-        'console_scripts': [__mod_name__+'='+__mod_name__+'.main']
+        'console_scripts': [__mod_name__+'='+__mod_name__+'.main:main']
     },
 
     classifiers=[
