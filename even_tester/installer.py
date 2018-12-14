@@ -14,6 +14,11 @@ def _get_supported_distros(dependency_map):
     return supported_distros
 
 def _recognise_distro(distros=['ubuntu']):
+    os_name = get_os_name()
+    if os_name in ['windows', 'mac']:
+        if os_name in distros: return os_name
+        else: return None
+
     try:
         p = subprocess.Popen(['uname','-a'], stdout=subprocess.PIPE)
         out = p.stdout.read().decode('utf-8').lower()
@@ -26,6 +31,9 @@ def _recognise_distro(distros=['ubuntu']):
 
 
 def is_installed(soft):
+    os_name = get_os_name()
+    dump_out =' > /dev/null 2>&1'
+    if os_name == 'windows': dump_out =' > NUL'
     dump_out = ' > /dev/null 2>&1'
     help_opt = ' --help '
     a = os.system(soft + help_opt + dump_out)
@@ -39,7 +47,7 @@ def is_installed(soft):
     return False
 
 
-def install_dependencies(dependency_map, verbose = False):
+def install_dependencies_win(dependency_map, verbose = False):
     supported_distros = _get_supported_distros(dependency_map)
     distro = _recognise_distro(supported_distros)
     if(verbose):
@@ -86,6 +94,7 @@ def install_tester():
     dependency_map = {
         'even_validator':{
             'ubuntu':'cp '+binary_path+' '+install_path,
+            'windows':'copy '+binary_path+' '+install_path,
         },
     }
     install_dependencies(dependency_map,verbose=True)
